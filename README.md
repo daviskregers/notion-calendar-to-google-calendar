@@ -8,6 +8,11 @@ This will take a notion database and sync changes to a google calendar.
 - Copy .env.example to .env file and fill in the secrets
 - python main.py
 
+## Note on the Notion properties
+
+I'm using the the second brain notion template https://www.notion.so/Second-Brain-87220ae827774816aa7328a131f1fd2f
+and the properties match the project properties there.
+
 ## Development
 
 - Tests: `make test`
