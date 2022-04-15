@@ -14,6 +14,10 @@ def main():
     notion_items   = NotionItemRetriever(token, database_id).get_notion_items()
 
     service = build('calendar', 'v3', credentials=credentials)
+    def callback_s(id, res, exc):
+        print(id, res, exc)
+
+    br = service.new_batch_http_request(callback=callback_s)
     for item in notion_items:
         found = False
         for event in calendar_items:
@@ -21,17 +25,20 @@ def main():
                 found = True
                 matches = event == item
                 if not matches:
-                    service.events().update(
+                    sr = service.events().update(
                             calendarId=calendar_id,
                             eventId=event.id,
                             body=item.to_google_calendar_item()
-                        ).execute()
+                        )
+                    br.add(sr, request_id=event.id)
 
         if not found:
-            service.events().insert(
+            sr = service.events().insert(
                     calendarId=calendar_id,
                     body=item.to_google_calendar_item()
-                ).execute()
+                )
+            br.add(sr, request_id=item.id)
+    br.execute()
 
 def obj_to_dict(item):
     return item.__dict__
