@@ -12,10 +12,13 @@ jobs:
       with:
         python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
         architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
-    - name: Generate Report
+    - name: install dependencies
       run: |
         pip install -r requirements.txt
         pip install coverage
+    - name: Generate Report
+      run: |
         coverage run -m unittest
+        coverage xml
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2
