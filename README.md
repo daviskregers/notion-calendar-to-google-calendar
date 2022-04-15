@@ -1,5 +1,7 @@
 # Notion Calendar - Google Calendar sync
 
+[![codecov](https://codecov.io/gh/daviskregers/notion-calendar-to-google-calendar/branch/main/graph/badge.svg?token=YJ27Q8HISR)](https://codecov.io/gh/daviskregers/notion-calendar-to-google-calendar)
+
 This will take a notion database and sync changes to a google calendar.
 
 - Create a notion integration at: https://www.notion.so/my-integrations
