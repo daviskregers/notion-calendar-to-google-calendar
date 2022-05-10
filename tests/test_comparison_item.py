@@ -1,5 +1,7 @@
 from .testcase import TestCase
 from src.comparison_item import ComparisonItem
+import datetime
+from dateutil.parser import parse
 
 class TestComparisonItemRetrieval(TestCase):
 
@@ -20,12 +22,14 @@ class TestComparisonItemRetrieval(TestCase):
         self.assertEqual(notion_item.title, self.title)
         self.assertEqual(notion_item.link, self.link)
         self.assertEqual(notion_item.start_date, self.start_date)
-        self.assertEqual(notion_item.end_date, self.end_date)
+        self.assertEqual(notion_item.end_date, (parse(self.end_date) + datetime.timedelta(days=1)).strftime(ComparisonItem.DATE_FORMAT))
 
     def test_end_date_matches_start_date_if_none(self):
         notion_item = ComparisonItem(self.id, self.created_at, self.updated_at, self.title, self.link, self.start_date, None)
 
-        self.assertEqual(notion_item.end_date, self.start_date)
+        self.assertEqual(notion_item.end_date, 
+            (parse(self.start_date) + datetime.timedelta(days=1)).strftime(ComparisonItem.DATE_FORMAT)
+        )
 
     def test_type_param_set_as_date(self):
         notion_item = ComparisonItem(self.id, self.created_at, self.updated_at, self.title, self.link, '2022-02-17', None)
@@ -70,6 +74,23 @@ class TestComparisonItemRetrieval(TestCase):
             },
             'end': {
                 'dateTime': '2022-02-19T01:23:00',
+                'timeZone': 'Europe/Riga'
+            }
+        })
+
+    def test_converts_to_google_calendar_item_multiple_days(self):
+        notion_item = ComparisonItem(self.id, self.created_at, self.updated_at, self.title, self.link, '2022-02-17', '2022-02-18')
+
+        self.assertEqual(notion_item.to_google_calendar_item(), {
+            'id': self.id.encode('utf-8').hex(),
+            'summary': self.title,
+            'location': self.link,
+            'start': {
+                'date': '2022-02-17',
+                'timeZone': 'Europe/Riga'
+            },
+            'end': {
+                'date': '2022-02-19',
                 'timeZone': 'Europe/Riga'
             }
         })

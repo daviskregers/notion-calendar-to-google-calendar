@@ -12,24 +12,12 @@ class NotionItemRetriever:
     def get_database_id(self) -> str:
         return self.database_id
 
-    def get_notion_items(self) -> list:
-        results = requests.post(
-            f'https://api.notion.com/v1/databases/{self.get_database_id()}/query',
-            headers={
-                "Authorization": f"Bearer {self.get_token()}",
-                "Notion-Version": "2021-08-16"
-            },
-            json={
+    def get_notion_items(self, start_cursor = None) -> list:
+        body = {
                 "filter": {
                     "and": [
                         {
                             "property": "Archive",
-                            "checkbox": {
-                                "equals": False
-                            }
-                        },
-                        {
-                            "property": "Done",
                             "checkbox": {
                                 "equals": False
                             }
@@ -42,13 +30,25 @@ class NotionItemRetriever:
                         },
                     ]
                 },
-            }
+        }
+        if start_cursor:
+            body['start_cursor'] = start_cursor
+
+        results = requests.post(
+            f'https://api.notion.com/v1/databases/{self.get_database_id()}/query',
+            headers={
+                "Authorization": f"Bearer {self.get_token()}",
+                "Notion-Version": "2021-08-16"
+            },
+            json=body,
         ).json()
 
-        if results['has_more']:
-            raise NotImplementedError('Not implemented: has more database items')
+        items = list(map(self.map_notion_items, results['results']))
 
-        return list(map(self.map_notion_items, results['results']))
+        if results['has_more']:
+            items += self.get_notion_items(results['next_cursor'])
+
+        return items
 
     def map_notion_items(self, item):
         return ComparisonItem(

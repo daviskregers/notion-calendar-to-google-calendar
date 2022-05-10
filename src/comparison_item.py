@@ -12,8 +12,11 @@ class ComparisonItem:
         self.title = title
         self.link = link
         self.start_date = parse(start_date)
+        self.same_day_event = False
         self.end_date = parse(end_date if end_date else start_date)
         self.type = 'date' if ':' not in start_date else 'dateTime' # TODO: this should be const as well as date
+        if self.type == 'date' and start_date == end_date:
+            self.same_day_event = True
 
         if self.type == 'dateTime':
             if (self.start_date == self.end_date):
@@ -22,6 +25,8 @@ class ComparisonItem:
             self.start_date = self.start_date.isoformat()
             self.end_date = self.end_date.isoformat()
         else:
+            if not self.same_day_event:
+                self.end_date += datetime.timedelta(days=1)
             self.start_date = self.start_date.strftime(self.DATE_FORMAT)
             self.end_date = self.end_date.strftime(self.DATE_FORMAT)
 

@@ -4,6 +4,13 @@ from src.calendar_credentials_obtainer import CalendarCredentialsObtainer
 from src.calendar_item_retriever import CalendarItemRetriever
 from src.notion_item_retriever import NotionItemRetriever
 import os
+import json
+
+class Encoder(json.JSONEncoder):
+    def default(self, o):
+        if type(o) is bytes:
+            return bytes.decode(o)
+        return o.__dict__
 
 def main():
     credentials    = CalendarCredentialsObtainer().get_credentials()
@@ -15,7 +22,13 @@ def main():
 
     service = build('calendar', 'v3', credentials=credentials)
     def callback_s(id, res, exc):
-        print(id, res, exc)
+        print(
+            json.dumps({
+                'id': id,
+                'res': res,
+                'exc': exc
+            }, indent = 2, cls=Encoder)
+        )
 
     br = service.new_batch_http_request(callback=callback_s)
     for item in notion_items:
