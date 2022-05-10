@@ -266,3 +266,11 @@ class TestComparisonItemRetrieval(TestCase):
                 '2022-02-19T01:23:01'
             )
         self.assertEqual(False, left == right)
+
+    def test_same_day_event(self):
+        notion_item = ComparisonItem(self.id, self.created_at, self.updated_at, self.title, self.link, '2022-02-17', '2022-02-17')
+
+        self.assertEqual(notion_item.start_date, '2022-02-17')
+        self.assertEqual(notion_item.end_date, '2022-02-17')
+        self.assertEqual(notion_item.type, 'date')
+        
